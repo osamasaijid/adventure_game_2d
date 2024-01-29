@@ -15,16 +15,22 @@ public class PlayerController : MonoBehaviour
     private GameObject hookedEnemy = null;
 
     public int maxMana = 100;
+    public float maxhealth = 100;
     public int hookManaCost = 20;
     public float manaRegenerationRate = 5f;
     private int currentMana;
+    private float currentHealth;
 
     private bool hasKey = false;
+
+    private float DamageOnProjectile = 15f;
+    public float healthBoostOnPickup = 5f;
 
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
         currentMana = maxMana;
+        currentHealth = maxhealth;
     }
 
     void Update()
@@ -106,14 +112,25 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-
+    public void TakeDamage()
+    {
+        currentHealth -= DamageOnProjectile;
+    }
+    public void IncreaseHealth()
+    {
+        currentHealth += healthBoostOnPickup;
+    }
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if(collision.gameObject.tag.Equals("Key"))
         {
             hasKey = true;
             Destroy(collision.gameObject);
-        }    
+        }
+        if (collision.gameObject.tag.Equals("HealthPickup"))
+        {
+            IncreaseHealth();
+        }
     }
     void OnDrawGizmosSelected()
     {
