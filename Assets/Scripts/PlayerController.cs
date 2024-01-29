@@ -19,6 +19,8 @@ public class PlayerController : MonoBehaviour
     public float manaRegenerationRate = 5f;
     private int currentMana;
 
+    private bool hasKey = false;
+
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -104,6 +106,15 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if(collision.gameObject.tag.Equals("Key"))
+        {
+            hasKey = true;
+            Destroy(collision.gameObject);
+        }    
+    }
     void OnDrawGizmosSelected()
     {
         // Existing Gizmos for attack range...
