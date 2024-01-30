@@ -26,11 +26,16 @@ public class PlayerController : MonoBehaviour
     private float DamageOnProjectile = 15f;
     public float healthBoostOnPickup = 5f;
 
+    public System.Action<float> healthChanged;
+    public System.Action<int> manaChanged;
+
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
         currentMana = maxMana;
         currentHealth = maxhealth;
+        manaChanged?.Invoke(currentMana);
+        healthChanged?.Invoke(currentHealth);
     }
 
     void Update()
@@ -65,6 +70,7 @@ public class PlayerController : MonoBehaviour
         {
             currentMana += (int)(manaRegenerationRate * Time.deltaTime);
             currentMana = Mathf.Min(currentMana, maxMana);
+            manaChanged?.Invoke(currentMana);
         }
     }
 
@@ -97,6 +103,7 @@ public class PlayerController : MonoBehaviour
 
             // Consume Mana
             currentMana -= hookManaCost;
+            manaChanged?.Invoke(currentMana);
         }
     }
 
@@ -115,10 +122,12 @@ public class PlayerController : MonoBehaviour
     public void TakeDamage()
     {
         currentHealth -= DamageOnProjectile;
+        healthChanged?.Invoke(currentHealth);
     }
     public void IncreaseHealth()
     {
         currentHealth += healthBoostOnPickup;
+        healthChanged?.Invoke(currentHealth);
     }
     private void OnTriggerEnter2D(Collider2D collision)
     {
@@ -130,6 +139,11 @@ public class PlayerController : MonoBehaviour
         if (collision.gameObject.tag.Equals("HealthPickup"))
         {
             IncreaseHealth();
+        }
+        if (collision.gameObject.tag.Equals("Door"))
+        {
+            if (hasKey)
+                Debug.Log("Won");
         }
     }
     void OnDrawGizmosSelected()
