@@ -501,7 +501,7 @@ MonoBehaviour:
   stopDistance: 7
   projectile: {fileID: 4102387952955108058, guid: 15017b0d7f829ba4d969b203dfdc9c22, type: 3}
   shootingInterval: 10
-  destroyTimer: 12
+  selfDestroyTimer: 12
 --- !u!61 &5246810061756858055
 BoxCollider2D:
   m_ObjectHideFlags: 0
