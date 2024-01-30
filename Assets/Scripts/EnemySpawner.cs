@@ -15,7 +15,6 @@ public class EnemySpawner : MonoBehaviour
             nextSpawnTime = Time.time + spawnRate;
         }
     }
-
     void SpawnEnemy()
     {
         Vector2 spawnPos = Random.insideUnitCircle * spawnRadius + (Vector2)transform.position;

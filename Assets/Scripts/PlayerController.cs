@@ -15,7 +15,7 @@ public class PlayerController : MonoBehaviour
     private GameObject hookedEnemy = null;
 
     public int maxMana = 100;
-    public float maxhealth = 100;
+    public float maxHealth = 100;
     public int hookManaCost = 20;
     public float manaRegenerationRate = 5f;
     private int currentMana;
@@ -30,18 +30,22 @@ public class PlayerController : MonoBehaviour
     public System.Action<int> manaChanged;
 
     private Animator animator;
+    private bool isWon = false;
     void Start()
     {
         animator=GetComponent<Animator>();
         rb = GetComponent<Rigidbody2D>();
         currentMana = maxMana;
-        currentHealth = maxhealth;
+        currentHealth = maxHealth;
         manaChanged?.Invoke(currentMana);
         healthChanged?.Invoke(currentHealth);
     }
 
     void Update()
     {
+        if (isWon)
+            return;
+
         // Input for movement
         movement.x = Input.GetAxisRaw("Horizontal");
         movement.y = Input.GetAxisRaw("Vertical");
@@ -59,13 +63,16 @@ public class PlayerController : MonoBehaviour
         }
 
         // Melee attack
-        if (Input.GetKeyDown(KeyCode.Space)) // Assuming space bar is the attack key
+        if (Input.GetKeyDown(KeyCode.Space) || Input.GetMouseButtonDown(0)) 
         {
             Attack();
         }
 
-        if (Input.GetKeyDown(KeyCode.E)) // Assuming E is the hook key
+        if (Input.GetKeyDown(KeyCode.E)) 
         {
+            // Consume Mana
+            currentMana -= hookManaCost;
+            manaChanged?.Invoke(currentMana);
             TryHook();
         }
 
@@ -98,23 +105,58 @@ public class PlayerController : MonoBehaviour
         foreach (Collider2D enemy in hitEnemies)
         {
             Debug.Log("We hit " + enemy.name);
-            enemy.GetComponent<EnemyController>().TakeDamage(attackDamage);
+            if (enemy != null)
+                enemy.GetComponent<EnemyController>()?.TakeDamage(attackDamage);
         }
     }
     void TryHook()
     {
-        RaycastHit2D hit = Physics2D.Raycast(transform.position, transform.up, hookRange, enemyLayers);
-        if (hit.collider != null)
+        //RaycastHit2D hit = Physics2D.Raycast(transform.position, transform.up, hookRange, enemyLayers);
+        //if (hit.collider != null)
+        //{
+        //    hookedEnemy = hit.collider.gameObject;
+        //    Debug.Log("Hooked " + hookedEnemy.name);
+
+        //    // Consume Mana
+        //    currentMana -= hookManaCost;
+        //    manaChanged?.Invoke(currentMana);
+        //}
+        Collider2D[] hitEnemies = Physics2D.OverlapCircleAll(transform.position, hookRange, enemyLayers);
+
+        if (hitEnemies.Length > 0)
         {
-            hookedEnemy = hit.collider.gameObject;
-            Debug.Log("Hooked " + hookedEnemy.name);
+            // Optional: Choose the closest enemy or use some other criteria
+            Collider2D closestEnemy = null;
+            float closestDistance = float.MaxValue;
 
-            // Consume Mana
-            currentMana -= hookManaCost;
-            manaChanged?.Invoke(currentMana);
+            foreach (var hitCollider in hitEnemies)
+            {
+                float distance = Vector2.Distance(transform.position, hitCollider.transform.position);
+                if (distance < closestDistance)
+                {
+                    closestDistance = distance;
+                    closestEnemy = hitCollider;
+                }
+            }
+
+            if (closestEnemy != null)
+            {
+                hookedEnemy = closestEnemy.gameObject;
+                Debug.Log("Hooked " + hookedEnemy.name);
+
+                
+            }
         }
-    }
 
+    }
+    public void ResetGameSettings()
+    {
+        isWon = false;
+        currentHealth = maxHealth;
+        currentMana = maxMana;
+        manaChanged?.Invoke(currentMana);
+        healthChanged?.Invoke(currentHealth);
+    }
     void PullEnemy()
     {
         // Pull the enemy towards the player
@@ -131,6 +173,11 @@ public class PlayerController : MonoBehaviour
     {
         currentHealth -= DamageOnProjectile;
         healthChanged?.Invoke(currentHealth);
+        if(currentHealth<=0f)
+        {
+            GameManager.Instance.GameEnded?.Invoke(false);
+            GameManager.Instance.StopGame();
+        }
     }
     public void IncreaseHealth()
     {
@@ -151,13 +198,16 @@ public class PlayerController : MonoBehaviour
         if (collision.gameObject.tag.Equals("Door"))
         {
             if (hasKey)
+            {
+                GameManager.Instance.GameEnded?.Invoke(true);
+                GameManager.Instance.StopGame();
                 Debug.Log("Won");
+                isWon = true;   
+            }
         }
     }
     void OnDrawGizmosSelected()
     {
-        // Existing Gizmos for attack range...
-        //    // Display the attack range in editor
         Gizmos.DrawWireSphere(transform.position, attackRange);
 
         // Display the hook range in editor
