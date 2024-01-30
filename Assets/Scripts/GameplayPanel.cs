@@ -11,8 +11,8 @@ public class GameplayPanel : MonoBehaviour
 
     private void Start()
     {
-        //FindObjectOfType<PlayerController>().healthChanged += UpdateHealth;
-        //FindObjectOfType<PlayerController>().manaChanged += UpdateMana;
+        FindObjectOfType<PlayerController>().healthChanged += UpdateHealth;
+        FindObjectOfType<PlayerController>().manaChanged += UpdateMana;
     }
 
     public void UpdateHealth(float healthValue)

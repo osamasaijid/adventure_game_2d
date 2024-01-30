@@ -19,8 +19,8 @@ public class Projectile : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
-            // Implement what happens when a projectile hits the player
-            // For example, reducing player's health
+            if(other!=null)
+                other.GetComponent<PlayerController>().TakeDamage();
 
             Destroy(gameObject); // Destroy the projectile
         }

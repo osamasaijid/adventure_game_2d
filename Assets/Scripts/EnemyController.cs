@@ -10,9 +10,16 @@ public class EnemyController : MonoBehaviour
     private Transform player;
     private float nextShootTime;
     private float health = 100;
+
+    private Animator animator;
+
+    public float destroyTimer;
+
     void Start()
     {
+        animator = GetComponent<Animator>();
         player = GameObject.FindGameObjectWithTag("Player").transform;
+        Invoke(nameof(DestroySelf), destroyTimer);
     }
 
     void Update()
@@ -25,12 +32,20 @@ public class EnemyController : MonoBehaviour
             nextShootTime = Time.time + shootingInterval;
         }
     }
-
+    public void DestroySelf()
+    {
+        Destroy(gameObject);
+    }
     void MoveTowardsPlayer()
     {
         if (Vector2.Distance(transform.position, player.position) > stopDistance)
         {
             transform.position = Vector2.MoveTowards(transform.position, player.position, moveSpeed * Time.deltaTime);
+            animator.SetTrigger("Walk");
+        }
+        else
+        {
+            animator.SetTrigger("Idle");
         }
     }
 
