@@ -15,14 +15,29 @@ public class PlayerController : MonoBehaviour
     private GameObject hookedEnemy = null;
 
     public int maxMana = 100;
+    public float maxhealth = 100;
     public int hookManaCost = 20;
     public float manaRegenerationRate = 5f;
     private int currentMana;
+    private float currentHealth;
 
+    private bool hasKey = false;
+
+    private float DamageOnProjectile = 15f;
+    public float healthBoostOnPickup = 5f;
+
+    public System.Action<float> healthChanged;
+    public System.Action<int> manaChanged;
+
+    private Animator animator;
     void Start()
     {
+        animator=GetComponent<Animator>();
         rb = GetComponent<Rigidbody2D>();
         currentMana = maxMana;
+        currentHealth = maxhealth;
+        manaChanged?.Invoke(currentMana);
+        healthChanged?.Invoke(currentHealth);
     }
 
     void Update()
@@ -32,9 +47,15 @@ public class PlayerController : MonoBehaviour
         movement.y = Input.GetAxisRaw("Vertical");
 
         // Rotate the player to face the direction of movement
-        if (movement != Vector2.zero)
+        //Debug.Log(movement.x + ", " + movement.y);
+
+        if (movement.x > 0)
         {
-            transform.up = movement;
+            transform.rotation = Quaternion.Euler(0, 0, 0);
+        }
+        else if (movement.x < 0)
+        {
+            transform.rotation = Quaternion.Euler(0, 180, 0);
         }
 
         // Melee attack
@@ -57,6 +78,7 @@ public class PlayerController : MonoBehaviour
         {
             currentMana += (int)(manaRegenerationRate * Time.deltaTime);
             currentMana = Mathf.Min(currentMana, maxMana);
+            manaChanged?.Invoke(currentMana);
         }
     }
 
@@ -69,14 +91,14 @@ public class PlayerController : MonoBehaviour
     void Attack()
     {
         // Detect enemies in range of attack
+        animator.SetTrigger("Attack1");
         Collider2D[] hitEnemies = Physics2D.OverlapCircleAll(transform.position, attackRange, enemyLayers);
 
         // Damage them
         foreach (Collider2D enemy in hitEnemies)
         {
             Debug.Log("We hit " + enemy.name);
-            // Here, you can add code to damage the enemy
-            // For example, enemy.GetComponent<Enemy>().TakeDamage(attackDamage);
+            enemy.GetComponent<EnemyController>().TakeDamage(attackDamage);
         }
     }
     void TryHook()
@@ -89,6 +111,7 @@ public class PlayerController : MonoBehaviour
 
             // Consume Mana
             currentMana -= hookManaCost;
+            manaChanged?.Invoke(currentMana);
         }
     }
 
@@ -104,6 +127,33 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    public void TakeDamage()
+    {
+        currentHealth -= DamageOnProjectile;
+        healthChanged?.Invoke(currentHealth);
+    }
+    public void IncreaseHealth()
+    {
+        currentHealth += healthBoostOnPickup;
+        healthChanged?.Invoke(currentHealth);
+    }
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if(collision.gameObject.tag.Equals("Key"))
+        {
+            hasKey = true;
+            Destroy(collision.gameObject);
+        }
+        if (collision.gameObject.tag.Equals("HealthPickup"))
+        {
+            IncreaseHealth();
+        }
+        if (collision.gameObject.tag.Equals("Door"))
+        {
+            if (hasKey)
+                Debug.Log("Won");
+        }
+    }
     void OnDrawGizmosSelected()
     {
         // Existing Gizmos for attack range...
