@@ -13,13 +13,13 @@ public class EnemyController : MonoBehaviour
 
     private Animator animator;
 
-    public float destroyTimer;
+    public float selfDestroyTimer;
 
     void Start()
     {
         animator = GetComponent<Animator>();
         player = GameObject.FindGameObjectWithTag("Player").transform;
-        Invoke(nameof(DestroySelf), destroyTimer);
+        Invoke(nameof(DestroySelf), selfDestroyTimer);
     }
 
     void Update()

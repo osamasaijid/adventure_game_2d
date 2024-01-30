@@ -13,6 +13,10 @@ public class GameManager : MonoBehaviour
     public Action<bool> GameEnded;
 
     private Vector3 startingPos;
+
+    public GameObject key;
+
+    public List<Transform> keyPositionTransforms;
     private void Awake()
     {
         Instance = this;
@@ -35,6 +39,7 @@ public class GameManager : MonoBehaviour
         enemySpawner.gameObject.SetActive(true);
         player.transform.position = startingPos;
         player.ResetGameSettings();
+        Instantiate(key, keyPositionTransforms[UnityEngine.Random.Range(0, keyPositionTransforms.Count)].position,Quaternion.identity);
         EnemyController[] enemyControllers = FindObjectsOfType<EnemyController>();
         if (enemyControllers.Length > 0)
         {
