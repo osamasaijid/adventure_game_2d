@@ -163,7 +163,7 @@ public class PlayerController : MonoBehaviour
         hookedEnemy.transform.position = Vector2.MoveTowards(hookedEnemy.transform.position, transform.position, pullSpeed * Time.deltaTime);
 
         // Release the enemy if it gets close enough to the player
-        if (Vector2.Distance(transform.position, hookedEnemy.transform.position) < 1f)
+        if (Vector2.Distance(transform.position, hookedEnemy.transform.position) < 1.5f)
         {
             hookedEnemy = null;
         }
@@ -194,6 +194,7 @@ public class PlayerController : MonoBehaviour
         if (collision.gameObject.tag.Equals("HealthPickup"))
         {
             IncreaseHealth();
+            Destroy(collision.gameObject);
         }
         if (collision.gameObject.tag.Equals("Door"))
         {
