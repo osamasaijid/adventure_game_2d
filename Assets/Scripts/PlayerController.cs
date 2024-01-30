@@ -1,4 +1,8 @@
 using UnityEngine;
+public interface IInputService
+{
+    float GetAxisRaw(string axisName);
+}
 
 public class PlayerController : MonoBehaviour
 {
@@ -31,6 +35,7 @@ public class PlayerController : MonoBehaviour
 
     private Animator animator;
     private bool isWon = false;
+    public IInputService inputService;
     void Start()
     {
         animator=GetComponent<Animator>();
@@ -47,8 +52,8 @@ public class PlayerController : MonoBehaviour
             return;
 
         // Input for movement
-        movement.x = Input.GetAxisRaw("Horizontal");
-        movement.y = Input.GetAxisRaw("Vertical");
+        movement.x = inputService.GetAxisRaw("Horizontal");
+        movement.y = inputService.GetAxisRaw("Vertical");
 
         // Rotate the player to face the direction of movement
         //Debug.Log(movement.x + ", " + movement.y);
