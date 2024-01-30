@@ -29,8 +29,10 @@ public class PlayerController : MonoBehaviour
     public System.Action<float> healthChanged;
     public System.Action<int> manaChanged;
 
+    private Animator animator;
     void Start()
     {
+        animator=GetComponent<Animator>();
         rb = GetComponent<Rigidbody2D>();
         currentMana = maxMana;
         currentHealth = maxhealth;
@@ -45,9 +47,15 @@ public class PlayerController : MonoBehaviour
         movement.y = Input.GetAxisRaw("Vertical");
 
         // Rotate the player to face the direction of movement
-        if (movement != Vector2.zero)
+        //Debug.Log(movement.x + ", " + movement.y);
+
+        if (movement.x > 0)
         {
-            transform.up = movement;
+            transform.rotation = Quaternion.Euler(0, 0, 0);
+        }
+        else if (movement.x < 0)
+        {
+            transform.rotation = Quaternion.Euler(0, 180, 0);
         }
 
         // Melee attack
@@ -83,14 +91,14 @@ public class PlayerController : MonoBehaviour
     void Attack()
     {
         // Detect enemies in range of attack
+        animator.SetTrigger("Attack1");
         Collider2D[] hitEnemies = Physics2D.OverlapCircleAll(transform.position, attackRange, enemyLayers);
 
         // Damage them
         foreach (Collider2D enemy in hitEnemies)
         {
             Debug.Log("We hit " + enemy.name);
-            // Here, you can add code to damage the enemy
-            // For example, enemy.GetComponent<Enemy>().TakeDamage(attackDamage);
+            enemy.GetComponent<EnemyController>().TakeDamage(attackDamage);
         }
     }
     void TryHook()

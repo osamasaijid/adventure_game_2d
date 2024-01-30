@@ -9,7 +9,7 @@ public class EnemyController : MonoBehaviour
 
     private Transform player;
     private float nextShootTime;
-
+    private float health = 100;
     void Start()
     {
         player = GameObject.FindGameObjectWithTag("Player").transform;
@@ -41,5 +41,12 @@ public class EnemyController : MonoBehaviour
         GameObject bullet = Instantiate(projectile, transform.position, Quaternion.identity);
         Vector2 direction = (player.position - transform.position).normalized;
         bullet.GetComponent<Projectile>().SetDirection(direction);
+    }
+
+    public void TakeDamage(int damage)
+    {
+        health -= damage;
+        if(health <= 0)
+            Destroy(gameObject);
     }
 }
