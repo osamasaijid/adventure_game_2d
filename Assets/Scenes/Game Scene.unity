@@ -41285,3 +41285,4 @@ MonoBehaviour:
   hookManaCost: 20
   manaRegenerationRate: 30
   healthBoostOnPickup: 5
+  pullEffectPrefab: {fileID: 8837616473719591793, guid: 180be91e483bd8549a3c2191583db1bd, type: 3}

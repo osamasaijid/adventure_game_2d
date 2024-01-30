@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 public class PlayerController : MonoBehaviour
@@ -31,6 +32,7 @@ public class PlayerController : MonoBehaviour
 
     private Animator animator;
     private bool isWon = false;
+    public GameObject pullEffectPrefab;
     void Start()
     {
         animator=GetComponent<Animator>();
@@ -161,7 +163,10 @@ public class PlayerController : MonoBehaviour
     {
         // Pull the enemy towards the player
         hookedEnemy.transform.position = Vector2.MoveTowards(hookedEnemy.transform.position, transform.position, pullSpeed * Time.deltaTime);
-
+        Vector2 direction = hookedEnemy.transform.position - transform.position;
+        Quaternion rotation = Quaternion.LookRotation(direction);
+        var effect = Instantiate(pullEffectPrefab, transform.position, rotation);
+        StartCoroutine(DeleteEffect(effect));
         // Release the enemy if it gets close enough to the player
         if (Vector2.Distance(transform.position, hookedEnemy.transform.position) < 1.5f)
         {
@@ -178,6 +183,12 @@ public class PlayerController : MonoBehaviour
             GameManager.Instance.GameEnded?.Invoke(false);
             GameManager.Instance.StopGame();
         }
+    }
+
+    public IEnumerator DeleteEffect(GameObject effect)
+    {
+        yield return new WaitForSeconds(2f);
+        Destroy(effect.gameObject);
     }
     public void IncreaseHealth()
     {
